@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.WindowCompat
@@ -38,11 +37,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupUi()
-        setupVideoAdapter()
         initializePlayer()
+        setupVideoAdapter()
         orientationAction()
         viewModel.fetchVideo()
-        playVideos()
     }
 
 
@@ -71,6 +69,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupVideoAdapter() {
         videoRecyclerAdapter = VideoRecyclerAdapter()
         binding.videoRecyclerView.adapter = videoRecyclerAdapter
+        videoRecyclerAdapter.onVideoSelectedListener { viewModel.selectVideo(it) }
     }
 
     private fun doLandscape() {
@@ -136,13 +135,11 @@ class MainActivity : AppCompatActivity() {
             binding.playerView.player = player
         }
     }
-    fun playVideos(){
-        viewModel.mediaItemList.observe(this){
-            player?.addMediaItems(it)
-            player?.prepare()
-            player?.playWhenReady = true
-        }
-
+    private fun playVideo(mediaItem: MediaItem){
+        player?.clearMediaItems()
+        player?.setMediaItem(mediaItem)
+        player?.prepare()
+        player?.playWhenReady = true
     }
 
     private fun playbackStatus() = object : Player.Listener {
